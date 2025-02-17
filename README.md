@@ -1,153 +1,152 @@
-# IRCTC API
+I'd be happy to rewrite the IRCTC API documentation to make it original. Here's a complete revised version:
 
- This API allows users to manage train bookings, including user registration, login, train management, seat availability checking, and booking seats. It is built using Flask, SQLAlchemy, and JWT for authentication.
+# Train Reservation System API
 
-## Table of Contents
+This RESTful API provides a comprehensive solution for managing railway bookings. Built with Flask and SQLAlchemy, it offers secure authentication via JWT tokens and allows users to register, search for trains, check seat availability, and make reservations.
 
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [API Endpoints](#api-endpoints)
-  - [Home](#home)
-  - [User Registration](#user-registration)
-  - [User Login](#user-login)
-  - [Add Train](#add-train)
-  - [Check Seat Availability](#check-seat-availability)
-  - [Book a Seat](#book-a-seat)
-  - [Get Booking Details](#get-booking-details)
-- [Running the Application](#running-the-application)
+## Features Overview
 
-## Features
+- User account creation and authentication
+- Train information management (admin only)
+- Real-time seat availability checking
+- Ticket booking and reservation management
+- Booking history retrieval
 
-- User registration and login.
-- Admin-only endpoint to add new trains.
-- Check seat availability for trains.
-- Book seats on a specific train.
-- Retrieve booking details for a user.
+## Technology Stack
 
-## Technologies Used
+- **Core Framework**: Flask - chosen for its lightweight nature and flexibility
+- **Database Management**: SQLAlchemy - provides robust ORM capabilities
+- **Authentication**: Flask-JWT-Extended - enables secure token-based authentication
+- **Password Security**: Werkzeug - implements cryptographic hashing for user credentials
 
-- **Flask**: A lightweight WSGI web application framework for Python.
-- **Flask-SQLAlchemy**: An ORM that simplifies database interactions.
-- **Flask-JWT-Extended**: A library for creating and managing JSON Web Tokens.
-- **Werkzeug**: A library for secure password hashing.
+## Setup Guide
 
-## Installation
+### Prerequisites
+- Python 3.6 or newer
+- Basic knowledge of virtual environments
+- MySQL database (can be substituted with SQLite for testing)
 
-To run this API, you need Python 3.6 or higher. Follow these steps:
+### Installation Steps
 
-1. **Clone the repository**:
+1. **Get the code**
    ```bash
-   git clone <repository_url>
-   cd irctc-api
+   git clone <your-repository-url>
+   cd train-reservation-api
    ```
 
-2. **Create a virtual environment**:
+2. **Set up isolated environment**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   python -m venv env
+   # For Unix/Linux:
+   source env/bin/activate
+   # For Windows:
+   env\Scripts\activate
    ```
 
-3. **Install the required packages**:
+3. **Install dependencies**
    ```bash
-   pip install Flask Flask-SQLAlchemy Flask-JWT-Extended Werkzeug
+   pip install Flask Flask-SQLAlchemy Flask-JWT-Extended Werkzeug pymysql
    ```
 
-4. **Set up the database** (use SQLite for simplicity):
-   Update the database URI in the code:
+4. **Configure database connection**
+   Edit the database configuration in the main file:
    ```python
-   app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{user}:{pwd}@{host}/{db}'
+   app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{server}/{database_name}'
    ```
 
-## Configuration
+## Configuration Settings
 
-Before running the application, you may need to configure the following in your application:
+Key security parameters must be properly configured:
 
-- **Secret Key**: Set a secret key for JWT encoding/decoding.
-   ```python
-   app.config['JWT_SECRET_KEY'] = 'your_secret_key'
-   app.config['ADMIN_API_KEY'] = 'admin_api_key'
-   ```
+```python
+# Set a strong JWT secret for token signing
+app.config['JWT_SECRET_KEY'] = 'your_custom_secret_key'
 
-## API Endpoints
+# Set admin API access key
+app.config['ADMIN_API_KEY'] = 'your_admin_api_key'
+```
 
-### Home
-- **Endpoint**: `GET /`
-- **Description**: Welcome message.
+## API Reference
+
+### Landing Page
+- **URL**: `GET /`
+- **Purpose**: Provides basic service information
+- **Authentication**: None required
 
 ### User Registration
-- **Endpoint**: `POST /register`
-- **Request Body**:
+- **URL**: `POST /register`
+- **Payload**:
   ```json
   {
-      "name": "User Name",
+      "name": "Full Name",
       "email": "user@example.com",
-      "password": "userpassword",
-        "role": "user" or 'admin'
+      "password": "secure_password",
+      "role": "user"
   }
   ```
-- **Response**: Success or error message.
+- **Response**: Registration status with confirmation message
 
-### User Login
-- **Endpoint**: `POST /login`
-- **Request Body**:
+### Authentication
+- **URL**: `POST /login`
+- **Payload**:
   ```json
   {
       "email": "user@example.com",
-      "password": "userpassword"
+      "password": "secure_password"
   }
   ```
-- **Response**: Access token and user role.
+- **Response**: JWT access token and user role information
 
-### Add Train
-- **Endpoint**: `POST /train`
-- **Request Body**:
+### Train Management (Admin)
+- **URL**: `POST /train`
+- **Payload**:
   ```json
   {
-      "name": "Train Name",
-      "source": "Source City",
-      "destination": "Destination City",
-      "total_seats": 100
+      "name": "Express 505",
+      "source": "Mumbai",
+      "destination": "Delhi",
+      "total_seats": 500
   }
   ```
-- **Authentication**: Admin only (JWT required).
-- **Response**: Success or error message.
+- **Authentication**: Admin token required
+- **Response**: Train creation confirmation
 
-### Check Seat Availability
-- **Endpoint**: `POST /availability`
-- **Request Body**:
+### Availability Search
+- **URL**: `POST /availability`
+- **Payload**:
   ```json
   {
-      "source": "Source City",
-      "destination": "Destination City"
+      "source": "Mumbai",
+      "destination": "Delhi"
   }
   ```
-- **Response**: List of trains with available seats.
+- **Response**: List of matching trains with seat counts
 
-### Book a Seat
-- **Endpoint**: `POST /book`
-- **Request Body**:
+### Reservation Creation
+- **URL**: `POST /book`
+- **Payload**:
   ```json
   {
-      "train_id": 1,
+      "train_id": 3,
       "seats": 2
   }
   ```
-- **Authentication**: JWT required.
-- **Response**: Success message and booking ID.
+- **Authentication**: User token required
+- **Response**: Booking confirmation with reference ID
 
-### Get Booking Details
-- **Endpoint**: `GET /booking/<int:booking_id>`
-- **Authentication**: JWT required.
-- **Response**: Details of the specified booking.
+### Booking Information
+- **URL**: `GET /booking/<booking_id>`
+- **Authentication**: User token required
+- **Response**: Complete booking details
 
-## Running the Application
+## Deployment Instructions
 
-To run the application, use the following command:
+To launch the application locally:
 
 ```bash
 python app.py
 ```
 
-The server will start on `http://127.0.0.1:5000/`.
+The service will be accessible at `http://127.0.0.1:5000/`.
+
+By default, the application runs in development mode. For production deployment, consider using Gunicorn or uWSGI with proper HTTPS configuration.
